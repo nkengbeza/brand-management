@@ -30,8 +30,8 @@ class TopBrandController extends Controller
         }
         $c = new BrandCollection($brands);
         $c->additional(['country' => [
-            'iso2' => $country->iso2,
-            'name' => $country->name,
+            'iso2' => $country?->iso2 ?? 'DEFAULT',
+            'name' => $country?->name ?? 'DEFAULT',
         ]]);
         return $c;
     }
