@@ -25,7 +25,7 @@ class BrandApiTest extends TestCase
     }
 
     #[Test]
-    public function it_creates_a_brand_successfully()
+    public function creates_a_brand_successfully()
     {
         $payload = [
             'name' => 'Nike',
@@ -50,7 +50,7 @@ class BrandApiTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_validation_messages_in_french()
+    public function returns_validation_messages_in_french()
     {
         $response = $this->withHeaders([
             'Accept' => 'application/json',
@@ -67,7 +67,7 @@ class BrandApiTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_validation_messages_in_english()
+    public function returns_validation_messages_in_english()
     {
         $response = $this->withHeaders([
             'Accept' => 'application/json',
@@ -84,7 +84,7 @@ class BrandApiTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_paginated_list_of_brands()
+    public function returns_paginated_list_of_brands()
     {
         Brand::factory()->count(30)->create();
 
@@ -104,7 +104,7 @@ class BrandApiTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_a_single_brand_by_id()
+    public function returns_a_single_brand_by_id()
     {
         $brand = Brand::factory()->create([
             'name' => 'Nike',
@@ -125,7 +125,7 @@ class BrandApiTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_not_found_when_does_not_exist()
+    public function returns_not_found_when_does_not_exist()
     {
         $response = $this->withHeaders($this->headers)->getJson('/api/brands/999999');
 
@@ -137,7 +137,7 @@ class BrandApiTest extends TestCase
     }
 
     #[Test]
-    public function it_updates_a_brand_successfully()
+    public function updates_a_brand_successfully()
     {
         $brand = Brand::factory()->create([
             'name' => 'Old Brand',
@@ -170,7 +170,7 @@ class BrandApiTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_validation_errors_if_data_is_invalid()
+    public function returns_validation_errors_if_data_is_invalid()
     {
         $brand = Brand::factory()->create();
 
@@ -188,7 +188,7 @@ class BrandApiTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_not_found_if_update_brand_does_not_exist()
+    public function returns_not_found_if_update_brand_does_not_exist()
     {
         $response = $this->withHeaders($this->headers)
             ->putJson('/api/brands/999999', [
@@ -196,6 +196,37 @@ class BrandApiTest extends TestCase
                 'image' => 'https://example.com/brand.png',
                 'rating' => 4,
             ]);
+
+        $response->assertStatus(404)
+            ->assertJson([
+                'status' => 'not_found',
+                'message' => 'The resource brand with identifier 999999 does not exist.',
+            ]);
+    }
+
+    #[Test]
+    public function deletes_a_brand_successfully()
+    {
+        $brand = Brand::factory()->create([
+            'name' => 'Old Brand',
+            'image' => 'https://example.com/old.png',
+            'rating' => 2,
+        ]);
+
+        $response = $this->withHeaders($this->headers)
+            ->deleteJson("/api/brands/{$brand->id}");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'success'
+            ]);
+    }
+
+    #[Test]
+    public function returns_not_found_if_delete_brand_does_not_exist()
+    {
+        $response = $this->withHeaders($this->headers)
+            ->deleteJson('/api/brands/999999');
 
         $response->assertStatus(404)
             ->assertJson([

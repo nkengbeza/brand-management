@@ -49,8 +49,17 @@ class BrandController extends Controller
         return new BrandResource($existing_brand);
     }
 
-    public function destroy(string $id)
+    public function destroy(int $id)
     {
-        //
+        $existing_brand = Brand::find($id);
+        if (is_null($existing_brand)) {
+            $this->notFoundResponse('brand', $id);
+        }
+        Brand::destroy($id);
+        Log::info("Successfully deleted brand, name: " . $existing_brand->name);
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
+
 }
