@@ -15,4 +15,10 @@ class Brand extends Model
         'image',
         'rating',
     ];
+
+    public function countries()
+    {
+        return $this->belongsToMany(Country::class, 'country_brand', 'brand_id', 'country_id');
+    }
+
 }
