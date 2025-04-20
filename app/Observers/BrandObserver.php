@@ -22,7 +22,9 @@ class BrandObserver
      */
     public function updated(Brand $brand): void
     {
-        //
+        $brand->name = trim($brand->name);
+        $brand->image = trim($brand->image);
+        $brand->updated_at = Carbon::now();
     }
 
     /**

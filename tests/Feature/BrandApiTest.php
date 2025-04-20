@@ -136,4 +136,72 @@ class BrandApiTest extends TestCase
             ]);
     }
 
+    #[Test]
+    public function it_updates_a_brand_successfully()
+    {
+        $brand = Brand::factory()->create([
+            'name' => 'Old Brand',
+            'image' => 'https://example.com/old.png',
+            'rating' => 2,
+        ]);
+
+        $payload = [
+            'name' => 'Updated Brand',
+            'image' => 'https://example.com/updated.png',
+            'rating' => 5,
+        ];
+
+        $response = $this->withHeaders($this->headers)
+            ->putJson("/api/brands/{$brand->id}", $payload);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'name' => 'Updated Brand',
+                    'image' => 'https://example.com/updated.png',
+                    'rating' => 5,
+                ]
+            ]);
+
+        $this->assertDatabaseHas('brands', [
+            'id' => $brand->id,
+            'name' => 'Updated Brand',
+        ]);
+    }
+
+    #[Test]
+    public function it_returns_validation_errors_if_data_is_invalid()
+    {
+        $brand = Brand::factory()->create();
+
+        $payload = [
+            'name' => '',
+            'image' => 'not-a-url',
+            'rating' => 10,
+        ];
+
+        $response = $this->withHeaders($this->headers)
+            ->putJson("/api/brands/{$brand->id}", $payload);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['name', 'image', 'rating']);
+    }
+
+    #[Test]
+    public function it_returns_not_found_if_update_brand_does_not_exist()
+    {
+        $response = $this->withHeaders($this->headers)
+            ->putJson('/api/brands/999999', [
+                'name' => 'Anything',
+                'image' => 'https://example.com/brand.png',
+                'rating' => 4,
+            ]);
+
+        $response->assertStatus(404)
+            ->assertJson([
+                'status' => 'not_found',
+                'message' => 'The resource brand with identifier 999999 does not exist.',
+            ]);
+    }
+
 }

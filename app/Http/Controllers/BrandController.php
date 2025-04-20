@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Commons\HttpResponsTrait;
 use App\Http\Requests\StoreBrandRequest;
+use App\Http\Requests\UpdateBrandRequest;
 use App\Http\Resources\BrandCollection;
 use App\Http\Resources\BrandResource;
 use App\Models\Brand;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class BrandController extends Controller
@@ -25,8 +25,8 @@ class BrandController extends Controller
     public function store(StoreBrandRequest $request)
     {
         $brand = Brand::create($request->validated());
-        Log::info("Successfully create brand, name: " . $brand->name);
-        return $brand;
+        Log::info("Successfully created brand, name: " . $brand->name);
+        return new BrandResource($brand);
     }
 
     public function show(int $id)
@@ -38,9 +38,15 @@ class BrandController extends Controller
         return new BrandResource($brand);
     }
 
-    public function update(Request $request, string $id)
+    public function update(UpdateBrandRequest $request, int $id)
     {
-        //
+        $existing_brand = Brand::find($id);
+        if (is_null($existing_brand)) {
+            $this->notFoundResponse('brand', $id);
+        }
+        $existing_brand->update($request->validated());
+        Log::info("Successfully updated brand, name: " . $existing_brand->name);
+        return new BrandResource($existing_brand);
     }
 
     public function destroy(string $id)
