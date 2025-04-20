@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Smknstd\FakerPicsumImages\FakerPicsumImagesProvider;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Brand>
@@ -17,9 +18,12 @@ class BrandFactory extends Factory
      */
     public function definition(): array
     {
+        $faker = \Faker\Factory::create();
+        $faker->addProvider(new FakerPicsumImagesProvider($faker));
+
         return [
-            'name' => fake()->company(),
-            'image' => fake()->image(),
+            'name' => $faker->company(),
+            'image' => $faker->imageUrl(800, 600),
             'rating' => rand(1, 5),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),

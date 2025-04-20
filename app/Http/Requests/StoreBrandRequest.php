@@ -2,17 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-
-class StoreBrandRequest extends FormRequest
+class StoreBrandRequest extends AbstractFormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return false;
-    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -22,7 +13,10 @@ class StoreBrandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'string', 'unique:brands,name'],
+            'image' => ['required', 'url:http,https'],
+            'rating' => ['required', 'integer', 'min:0', 'max:5'],
         ];
     }
+
 }
